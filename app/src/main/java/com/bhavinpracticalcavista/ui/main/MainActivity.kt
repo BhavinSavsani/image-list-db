@@ -59,7 +59,7 @@ class MainActivity : BaseActivity(), ImagePageListAdapter.OnImageClickListener {
 
         viewModel.mRequestData.observe(this, Observer {
             txt_error.visibility =
-                if (viewModel.listIsEmpty() && it == RequestState.State.FAILURE) View.VISIBLE else View.GONE
+                if (viewModel.listIsEmpty() && it.status == RequestState.State.FAILURE) View.VISIBLE else View.GONE
             progress.visibility =
                 if (adapter.itemCount == 0 && it.status == RequestState.State.PROGRESS) View.VISIBLE else View.GONE
 

@@ -25,7 +25,6 @@
             app:layout_scrollFlags="scroll|enterAlways">
 
 
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_comment"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -65,10 +64,13 @@
     <TextView
         android:id="@+id/txt_error"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:gravity="center"
-        android:visibility="gone"
-        android:text="ERROR !! Tap to retry." />
+        android:paddingTop="@dimen/_50sdp"
+        android:paddingBottom="@dimen/_50sdp"
+        android:text="ERROR !! Tap to retry."
+        android:visibility="gone" />
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
