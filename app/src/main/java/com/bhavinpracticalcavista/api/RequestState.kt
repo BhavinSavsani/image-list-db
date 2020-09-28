@@ -14,8 +14,7 @@ data class RequestState<T>(
         PROGRESS,
         INTERNET_ERROR,
         SUCCESS,
-        FAILURE,
-        API_ERROR
+        FAILURE
     }
 
     companion object {
@@ -29,10 +28,6 @@ data class RequestState<T>(
 
         fun <T> success(response: BaseResponse<T>): RequestState<T> {
             return RequestState(State.SUCCESS, response)
-        }
-
-        fun <T> apiError(response: BaseResponse<T>): RequestState<T> {
-            return RequestState(State.API_ERROR, response)
         }
 
         fun <T> error(error: String?): RequestState<T> {

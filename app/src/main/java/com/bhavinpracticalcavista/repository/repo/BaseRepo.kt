@@ -23,7 +23,7 @@ import javax.inject.Inject
 abstract class BaseRepo constructor(
     protected val apiService: RetrofitService
 ) {
-
+    //after adding paging library this class will not called
     @SuppressLint("CheckResult")
     protected fun <T> Flowable<BaseResponse<T>>.callApi(
         liveData: MutableLiveData<RequestState<T>>,
@@ -37,7 +37,7 @@ abstract class BaseRepo constructor(
                     if (it.success) {
                         liveData.postValue(RequestState.success(it))
                     } else {
-                        liveData.postValue(RequestState.apiError(it))
+                        liveData.postValue(RequestState.error("something went wrong"))
                     }
                 }, {
                     if (it is InternetException)

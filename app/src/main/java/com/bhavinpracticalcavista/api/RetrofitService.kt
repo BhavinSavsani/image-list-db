@@ -4,6 +4,7 @@ import com.bhavinpracticalcavista.repository.model.SearchResult
 import com.bhavinpracticalcavista.repository.repo.BaseResponse
 import io.reactivex.Flowable
 import io.reactivex.Observable
+import io.reactivex.Single
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET

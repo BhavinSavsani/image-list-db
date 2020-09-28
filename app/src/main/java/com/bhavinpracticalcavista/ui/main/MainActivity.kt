@@ -10,10 +10,9 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.bhavinpracticalcavista.R
 import com.bhavinpracticalcavista.api.RequestState
 import com.bhavinpracticalcavista.repository.model.SearchResult
-import com.bhavinpracticalcavista.ui.adapter.ImageListAdapter
+import com.bhavinpracticalcavista.ui.adapter.ImagePageListAdapter
 import com.bhavinpracticalcavista.ui.base.BaseActivity
 import com.bhavinpracticalcavista.ui.detail.DetailActivity
-import com.bhavinpracticalcavista.utils.EndlessRecyclerViewScrollListener
 import com.bhavinpracticalcavista.utils.SnackBarHelper
 import com.bhavinpracticalcavista.utils.extensions.getViewModel
 import com.jakewharton.rxbinding2.widget.RxTextView
@@ -22,11 +21,9 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.util.concurrent.TimeUnit
 
 
-class MainActivity : BaseActivity(), ImageListAdapter.OnImageClickListener {
+class MainActivity : BaseActivity(), ImagePageListAdapter.OnImageClickListener {
 
-    private lateinit var adapter: ImageListAdapter
-    private lateinit var scrollListener: EndlessRecyclerViewScrollListener
-    private val imageListType = 1
+    private lateinit var adapter: ImagePageListAdapter
     private val viewModel by lazy {
         getViewModel<MainViewModel>()
     }
@@ -44,7 +41,6 @@ class MainActivity : BaseActivity(), ImageListAdapter.OnImageClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        setRecyclerView()
         observeData()
     }
 
@@ -56,70 +52,43 @@ class MainActivity : BaseActivity(), ImageListAdapter.OnImageClickListener {
             .skip(1)
             .subscribe {
                 viewModel.query = it.toString()
-                viewModel.setLoaded = false
-                viewModel.pageNo = 1
-                viewModel.images.clear()
-                adapter.addItems(viewModel.images)
-                searchImages()
+                setRecyclerView()
             }
+
+        txt_error.setOnClickListener { viewModel.retry() }
+
         viewModel.mRequestData.observe(this, Observer {
-            if (it.status == RequestState.State.PROGRESS) {
-                if (adapter.itemCount == 0)
-                    progress.visibility = View.VISIBLE
-            } else {
-                progress.visibility = View.GONE
-                scrollListener.setLoaded()
-                if (it.status == RequestState.State.INTERNET_ERROR) {
-                    SnackBarHelper.showError(
-                        findViewById(android.R.id.content),
-                        "Internet not available"
-                    )
-                } else if (it.status == RequestState.State.API_ERROR) {
-                    SnackBarHelper.showError(
-                        findViewById(android.R.id.content),
-                        "Something went wrong in api"
-                    )
-                } else if (it.status == RequestState.State.FAILURE) {
-                    SnackBarHelper.showError(
-                        findViewById(android.R.id.content),
-                        it.error
-                    )
-                } else if (it.status == RequestState.State.SUCCESS) {
-                    it.data?.data?.apply {
-                        if (isNotEmpty()) {
-                            this.forEach {
-                                it.images?.let { it1 -> viewModel.images.addAll(it1) }
-                            }
-                            adapter.addItems(viewModel.images)
-                        } else {
-                            viewModel.setLoaded = true
-                            if (adapter.itemCount > 0) {
-                                adapter.removeProgress()
-                            }
-                        }
-                    }
-                }
+            txt_error.visibility =
+                if (viewModel.listIsEmpty() && it == RequestState.State.FAILURE) View.VISIBLE else View.GONE
+            progress.visibility =
+                if (adapter.itemCount == 0 && it.status == RequestState.State.PROGRESS) View.VISIBLE else View.GONE
+
+            if (!viewModel.listIsEmpty()) {
+                adapter.setState(it.status)
+            }
+            if (it.status == RequestState.State.INTERNET_ERROR) {
+                SnackBarHelper.showError(
+                    findViewById(android.R.id.content),
+                    "Internet not available"
+                )
+            } else if (it.status == RequestState.State.FAILURE) {
+                SnackBarHelper.showError(
+                    findViewById(android.R.id.content),
+                    it.error
+                )
             }
         })
     }
 
     private fun setRecyclerView() {
         rv_images.layoutManager = GridLayoutManager(this, 3)
-        adapter = ImageListAdapter(imageListType, this)
+        viewModel.initDataSource()
+        adapter = ImagePageListAdapter(this)
         rv_images.adapter = adapter
-        scrollListener = object : EndlessRecyclerViewScrollListener() {
-            override fun onLoadMore() {
-                viewModel.pageNo++
-                searchImages()
-            }
-        }
-        rv_images.addOnScrollListener(scrollListener)
-    }
+        viewModel.imageData.observe(this, Observer {
+            adapter.submitList(it)
+        })
 
-    private fun searchImages() {
-        if (!viewModel.setLoaded) {
-            viewModel.getImages()
-        }
     }
 
     override fun onItemClick(pos: Int, item: SearchResult.Image?) {
