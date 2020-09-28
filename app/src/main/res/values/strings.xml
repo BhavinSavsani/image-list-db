@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">BhavinPracticalCavista</string>
+    <string name="search_hint">Search images</string>
+    <string name="images">images</string>
+    <string name="save">Save</string>
+    <string name="comment">Comment</string>
+</resources>
