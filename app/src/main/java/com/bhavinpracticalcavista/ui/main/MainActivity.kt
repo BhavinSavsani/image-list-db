@@ -26,7 +26,7 @@ class MainActivity : BaseActivity(), ImageListAdapter.OnImageClickListener {
 
     private lateinit var adapter: ImageListAdapter
     private lateinit var scrollListener: EndlessRecyclerViewScrollListener
-    private val imageListType = 0
+    private val imageListType = 1
     private val viewModel by lazy {
         getViewModel<MainViewModel>()
     }
@@ -54,17 +54,17 @@ class MainActivity : BaseActivity(), ImageListAdapter.OnImageClickListener {
             .debounce(250, TimeUnit.MILLISECONDS)
             .observeOn(AndroidSchedulers.mainThread())
             .skip(1)
-            .filter { it.toString().length > 1 }
             .subscribe {
                 viewModel.query = it.toString()
                 viewModel.setLoaded = false
                 viewModel.pageNo = 1
                 viewModel.images.clear()
+                adapter.addItems(viewModel.images)
                 searchImages()
             }
         viewModel.mRequestData.observe(this, Observer {
             if (it.status == RequestState.State.PROGRESS) {
-                if (viewModel.pageNo == 1)
+                if (adapter.itemCount == 0)
                     progress.visibility = View.VISIBLE
             } else {
                 progress.visibility = View.GONE

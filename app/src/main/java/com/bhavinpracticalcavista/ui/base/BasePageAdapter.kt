@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bhavinpracticalcavista.R
 
 
-abstract class BasePageAdapter<T>(diffUtil: DiffUtil.ItemCallback<PageItem<T>>):
+abstract class BasePageAdapter<T>(diffUtil: DiffUtil.ItemCallback<PageItem<T>>) :
     ListAdapter<BasePageAdapter.PageItem<T>, RecyclerView.ViewHolder>(diffUtil) {
 
     private val VIEW_TYPE_LOADING = -2
@@ -23,16 +23,17 @@ abstract class BasePageAdapter<T>(diffUtil: DiffUtil.ItemCallback<PageItem<T>>):
         wrapperList.mapTo(pageList, {
             PageItem(VIEW_TYPE_DATA, it)
         })
-        pageList.add(PageItem(VIEW_TYPE_LOADING, null))
+        if (wrapperList.size > 0)
+            pageList.add(PageItem(VIEW_TYPE_LOADING, null))
         submitList(pageList)
         currentList = pageList
     }
 
     override fun getItemViewType(position: Int): Int {
-            return when (getItem(position).type) {
-                VIEW_TYPE_LOADING -> VIEW_TYPE_LOADING
-                else -> getDataItemViewType(position)
-            }
+        return when (getItem(position).type) {
+            VIEW_TYPE_LOADING -> VIEW_TYPE_LOADING
+            else -> getDataItemViewType(position)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -41,18 +42,19 @@ abstract class BasePageAdapter<T>(diffUtil: DiffUtil.ItemCallback<PageItem<T>>):
                 LayoutInflater.from(parent.context)
                     .inflate(R.layout.item_progress, parent, false)
             )
-            else-> onCreateDataViewHolder(parent, viewType)
+            else -> onCreateDataViewHolder(parent, viewType)
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-      if (holder !is ProgressHolder){
-          onBindDataViewHolder(holder,position)
-      }
+        if (holder !is ProgressHolder) {
+            onBindDataViewHolder(holder, position)
+        }
     }
-    abstract fun getDataItemViewType(position: Int):Int
 
-    abstract fun onCreateDataViewHolder(parent: ViewGroup, viewType: Int):RecyclerView.ViewHolder
+    abstract fun getDataItemViewType(position: Int): Int
+
+    abstract fun onCreateDataViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder
 
     abstract fun onBindDataViewHolder(holder: RecyclerView.ViewHolder, position: Int)
 
@@ -66,6 +68,7 @@ abstract class BasePageAdapter<T>(diffUtil: DiffUtil.ItemCallback<PageItem<T>>):
             currentList = tempList
         }
     }
+
     data class PageItem<T>(val type: Int, val data: T?)
     class ProgressHolder(view: View) : RecyclerView.ViewHolder(view)
 
