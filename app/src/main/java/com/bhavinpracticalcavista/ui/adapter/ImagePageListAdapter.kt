@@ -17,7 +17,7 @@ import kotlinx.android.synthetic.main.item_image.view.*
 import kotlinx.android.synthetic.main.item_progress.view.*
 
 class ImagePageListAdapter(private val mListener: OnImageClickListener) :
-    PagedListAdapter<SearchResult.Image, RecyclerView.ViewHolder>(NewsDiffCallback) {
+    PagedListAdapter<SearchResult.Image, RecyclerView.ViewHolder>(DiffCallback) {
 
     private val DATA_VIEW_TYPE = 1
     private val FOOTER_VIEW_TYPE = 2
@@ -49,12 +49,12 @@ class ImagePageListAdapter(private val mListener: OnImageClickListener) :
     }
 
     companion object {
-        val NewsDiffCallback = object : DiffUtil.ItemCallback<SearchResult.Image>() {
+        val DiffCallback = object : DiffUtil.ItemCallback<SearchResult.Image>() {
             override fun areItemsTheSame(
                 oldItem: SearchResult.Image,
                 newItem: SearchResult.Image
             ): Boolean {
-                return oldItem.title == newItem.title
+                return oldItem.id == newItem.id
             }
 
             override fun areContentsTheSame(
